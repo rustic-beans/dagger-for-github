@@ -116,6 +116,7 @@ runs:
         if [[ "${#containers[@]}" -gt 0 ]]; then
           # Export logs if requested
           if [[ "${{ inputs.export_logs }}" == "true" ]]; then
+            mkdir -p /tmp/engine-logs
             for container in "${containers[@]}"; do
               docker logs "$container" > "/tmp/engine-logs/${container}.log"
             done
