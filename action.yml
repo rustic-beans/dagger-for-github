@@ -40,6 +40,10 @@ inputs:
     description: "Function and arguments for dagger call"
     required: false
     default: ""
+  cache_config:
+    description: "Cache configuration"
+    required: false
+    default: ""
 outputs:
   output:
     description: "Job output"
@@ -76,8 +80,11 @@ runs:
       if: inputs.call != '' || inputs.args != ''
       shell: bash
       env:
+        _EXPERIMENTAL_DAGGER_CACHE_CONFIG: ${{ inputs.cache_config }}
         INPUT_MODULE: ${{ inputs.module }}
       run: |
+        echo "Cache Config: ${_EXPERIMENTAL_DAGGER_CACHE_CONFIG}"
+
         tmpout=$(mktemp)
         cd ${{ inputs.workdir }} && { \
         DAGGER_CLOUD_TOKEN=${{ inputs.cloud-token }} \
