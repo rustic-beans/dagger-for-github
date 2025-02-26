@@ -44,6 +44,10 @@ inputs:
     description: "Cache configuration"
     required: false
     default: ""
+  export_logs:
+    description: "Whether to export logs"
+    required: false
+    default: "false"
 outputs:
   output:
     description: "Job output"
@@ -110,5 +114,18 @@ runs:
       run: |
         mapfile -t containers < <(docker ps --filter name="dagger-engine-*" -q)
         if [[ "${#containers[@]}" -gt 0 ]]; then
+          # Export logs if requested
+          if [[ "${{ inputs.export_logs }}" == "true" ]]; then
+            for container in "${containers[@]}"; do
+              docker logs "$container" > "/tmp/engine-logs/${container}.log"
+            done
+          fi
+
           docker stop -t 300 "${containers[@]}";
         fi
+    - if: inputs.export_logs == 'true'
+      name: Export logs as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: engine-logs
+        path: /tmp/engine-logs
